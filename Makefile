@@ -1,11 +1,14 @@
 up:
-	@docker compose up -d
+	@docker compose -f docker/compose.yml up -d
 
 down:
-	@docker compose down
+	@docker compose -f docker/compose.yml down
 
-mysql-root:
-	@docker exec -it mysql1 mysql -u root -p github_data
+mysql:
+	@docker exec -it mysql mysql -u root -p
 
-mysql-user:
-	@docker exec -it mysql1 mysql -u myuser -p
+mongo:
+	@docker exec -it mongodb mongosh -u root -p
+
+redis:
+	@docker exec -it redis redis-cli
