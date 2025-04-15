@@ -1,0 +1,5 @@
+- rewrite the db_config to get the dbconfig from mysql mongodb and redis
+- write more schema
+=============================== DONE ===============================
+- check connect to mongo db vs redis
+- spark import data to 3 databases (mysql, mongodb, redis) (spark needs jdbc to connect these db)

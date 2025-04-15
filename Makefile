@@ -11,4 +11,4 @@ mongo:
 	@docker exec -it mongodb mongosh -u root -p
 
 redis:
-	@docker exec -it redis redis-cli
+	@docker exec -it redis redis-cli -a rootpassword
