@@ -1,8 +1,5 @@
 import mysql.connector
 from mysql.connector import Error
-from SyncData.config.db_config import get_db_config
-from SyncData.schema.schema_manager import create_mysql_database, create_mysql_schema, validate_mysql_schema
-from pathlib import Path
 
 class MySQLConnect:
     def __init__(self, host, port, user, password):
@@ -38,26 +35,3 @@ class MySQLConnect:
     def select_database(self, database_name):
         self.connection.database = database_name
         print(f"Switched to database: {database_name}")
-
-def main():
-    SQL_FILE_PATH = Path("/home/duckthihn/PycharmProjects/DE-ETL/SyncData/schema/schema.sql")
-    mysql_config = get_db_config()
-    db_name = mysql_config["mysql"].database
-    with (MySQLConnect(
-            mysql_config["mysql"].host,
-            mysql_config["mysql"].port,
-            mysql_config["mysql"].user,
-            mysql_config["mysql"].password)
-    as mysql_conn):
-
-        print(mysql_conn.connection)
-        print(mysql_conn.cursor)
-
-
-        create_mysql_database(mysql_conn.cursor, db_name)
-        mysql_conn.select_database(db_name)
-        create_mysql_schema(mysql_conn.connection, mysql_conn.cursor, SQL_FILE_PATH)
-        validate_mysql_schema(mysql_conn.cursor, db_name)
-
-if __name__ == "__main__":
-    main()

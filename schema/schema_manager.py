@@ -1,3 +1,5 @@
+from calendar import error
+
 import pymongo
 from pathlib import Path
 from mysql.connector.errors import Error
@@ -46,7 +48,7 @@ def validate_mongodb_schema(db):
     if not user:
         raise ValueError("user_id not found in MongoDB")
 
-    print("Validated successfully")
+    print("MongoDB schema validated successfully")
 
 
 ### MySQL
@@ -54,9 +56,11 @@ def create_mysql_database(cursor, database_name):
     cursor.execute(f"CREATE DATABASE IF NOT EXISTS {database_name}")
     print(f"Database {database_name} created or existed!")
 
-def create_mysql_schema(connection, cursor, sql_file_path: Path):
+SQL_FILE_PATH = Path("/home/duckthihn/PycharmProjects/DE-ETL/SyncData/schema/schema.sql")
+
+def create_mysql_schema(connection, cursor):
     try:
-        with open(sql_file_path, "r") as file:
+        with open(SQL_FILE_PATH, "r") as file:
             sql_script = file.read()
 
             sql_queries = [query.strip() for query in sql_script.split(';') if query.strip()]
@@ -64,9 +68,9 @@ def create_mysql_schema(connection, cursor, sql_file_path: Path):
             for query in sql_queries:
                 try:
                     cursor.execute(query)
-                    print(f"Executed query: {query[:50]}...")
+                    print(f"Executed query: {query[:30]}...")
                 except Error as err:
-                    print(f"Error executing query: {query[:50]}... -> {err}")
+                    print(f"Error executing query: {err}")
             connection.commit()
             print("SQL schema executed successfully.")
     except Exception as e:
@@ -88,5 +92,13 @@ def validate_mysql_schema(cursor, database):
         if not cursor.fetchone():
             raise ValueError(f"Table '{table}' is missing in the database.")
         print(f"Table '{table}' exists.")
+
+
+    # Check records
+    cursor.execute("SELECT * FROM Users WHERE user_id = 9614759")
+    user = cursor.fetchone()
+    if user is None:
+        raise ValueError("User not found")
+    print(user)
 
     print("MySQL schema validated successfully.")
