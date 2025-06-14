@@ -28,7 +28,6 @@ class MySQLConfig(DatabaseConfig):
     user: str
     password: str
     database: str
-    jar_path: Optional[str] = None
     table: str = "Users"
     driver: str = "com.mysql.cj.jdbc.Driver"
 
@@ -38,8 +37,7 @@ class MongoDBConfig(DatabaseConfig):
     """Configuration for MongoDB database connection."""
     uri: str
     database: str
-    jar_path: Optional[str] = None
-    collection: str = "Users"
+    collection: str = "Users"  # Default
 
 
 @dataclass
@@ -50,7 +48,6 @@ class RedisConfig(DatabaseConfig):
     username: Optional[str] = None
     password: Optional[str] = None
     database: Union[str, int] = 0
-    jar_path: Optional[str] = None
     key_column: str = "id"
     decode_responses: bool = True
 
@@ -87,20 +84,17 @@ def get_db_config(env_file_path: Optional[str] = None) -> Dict[str, DatabaseConf
                 user=os.getenv("MYSQL_ROOT_USER"),
                 password=os.getenv("MYSQL_ROOT_PASSWORD"),
                 database=os.getenv("MYSQL_DB"),
-                jar_path=os.getenv("MYSQL_JAR_PATH")
             ),
             "mongodb": MongoDBConfig(
                 uri=os.getenv("MONGO_URI"),
                 database=os.getenv("MONGO_DB"),
-                jar_path=os.getenv("MONGO_JAR_PATH")
             ),
             "redis": RedisConfig(
                 host=os.getenv("REDIS_HOST"),
                 port=int(os.getenv("REDIS_PORT")),
                 username=os.getenv("REDIS_USER"),
                 password=os.getenv("REDIS_PASSWORD"),
-                database=os.getenv("REDIS_DB"),
-                jar_path=os.getenv("REDIS_JAR_PATH")
+                database=os.getenv("REDIS_DB")
             )
         }
 

@@ -2,7 +2,7 @@ from dask.dataframe import DataFrame
 from pyspark.sql import SparkSession
 from typing import Optional, List, Dict
 import os
-from SyncData.config.db_config  import get_db_config
+from SyncData.config.db_config import get_db_config
 
 
 class SparkConnect():
@@ -14,13 +14,13 @@ class SparkConnect():
             executor_cores: Optional[int] = 2,
             driver_memory: Optional[str] = "2g",
             num_executors: Optional[int] = 3,
-            jars: Optional[List[str]] = None,
+            jar_packages: Optional[List[str]] = None,
             spark_conf: Optional[Dict[str, str]] = None,
             log_level: str = "WARN"
     ):
         self.app_name = app_name
         self.spark = self.create_spark_session(master_url, executor_memory, executor_cores, driver_memory,
-                                               num_executors, jars, spark_conf, log_level)
+                                               num_executors, jar_packages, spark_conf, log_level)
 
     def create_spark_session(
             self,
@@ -30,7 +30,7 @@ class SparkConnect():
             executor_cores: Optional[int] = 2,
             driver_memory: Optional[str] = "2g",
             num_executors: Optional[int] = 3,
-            jars: Optional[List[str]] = None,
+            jar_packages: Optional[List[str]] = None,
             spark_conf: Optional[Dict[str, str]] = None,
             log_level: str = "WARN"
     ) -> SparkSession:
@@ -49,9 +49,13 @@ class SparkConnect():
         if num_executors:
             builder.config("spark.executor.instances", num_executors)
 
-        if jars:
-            jars_path = ",".join([os.path.abspath(jar) for jar in jars])
-            builder.config("spark.jars", jars_path)
+        # if jars:
+        #     jars_path = ",".join([os.path.abspath(jar) for jar in jars])
+        #     builder.config("spark.jars.packages", jars_path)
+
+        if jar_packages:
+            jar_packages_url = ",".join([jar_package for jar_package in jar_packages])
+            builder.config("spark.jars.packages", jar_packages_url)
 
         # {"spark.sql.shuffle.partitions": "10"}
         if spark_conf:
@@ -86,7 +90,9 @@ def get_spark_config() -> Dict:
             },
         },
         "mongodb": {
-            ""
+            "database": db_configs["mongodb"].database,
+            "uri": db_configs["mongodb"].uri,
+            "collection": db_configs["mongodb"].collection
         },
         "redis": {
 

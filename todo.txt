@@ -1,0 +1,7 @@
+Done connect spark to databases
+Done write data to databases
+
+
+validate
+    - nums of records
+    - data quality

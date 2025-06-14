@@ -1,6 +1,5 @@
 from pyspark.sql import DataFrame, SparkSession
 from typing import Dict
-from SyncData.config.spark_config import get_spark_config
 
 
 class SparkWriteDatabases:
@@ -8,45 +7,50 @@ class SparkWriteDatabases:
         self.spark = spark
         self.db_config = db_config
 
-    def spark_write_mysql(self, df: DataFrame, table_name: str, jdbc_url: str, config: Dict, mode: str = "append"):
-        if mode == "append":
-            # For append mode, use MySQL's INSERT IGNORE syntax to handle duplicate keys
-            # This is done by setting a custom insertStatement property
+    def spark_write_mysql(self, df_write: DataFrame, table_name: str, jdbc_url: str, config: Dict,
+                          mode: str = "append"):
+        df_write.write \
+            .format("jdbc") \
+            .option("url", jdbc_url) \
+            .option("driver", "com.mysql.cj.jdbc.Driver") \
+            .option("dbtable", table_name) \
+            .option("user", config["user"]) \
+            .option("password", config["password"]) \
+            .mode(mode) \
+            .save()
 
-            # Get column names for the INSERT statement
-            columns = df.columns
-            columns_str = ", ".join(columns)
-            placeholders = ", ".join(["%s"] * len(columns))
+        print(f"Spark - Successfully wrote data to MySQL table: {table_name}")
 
-            # Create an INSERT IGNORE statement
-            insert_statement = f"INSERT IGNORE INTO {table_name} ({columns_str}) VALUES ({placeholders})"
+    def validate_spark_mysql(self, df_write: DataFrame, table_name: str, jdbc_url: str, config: Dict):
+        # Read the table back from MySQL
+        df_read = self.spark.read \
+            .format("jdbc") \
+            .option("url", jdbc_url) \
+            .option("driver", "com.mysql.cj.jdbc.Driver") \
+            .option("dbtable", table_name) \
+            .option("user", config["user"]) \
+            .option("password", config["password"]) \
+            .load()
 
-            df.write \
-                .format("jdbc") \
-                .option("url", jdbc_url) \
-                .option("driver", "com.mysql.cj.jdbc.Driver") \
-                .option("dbtable", table_name) \
-                .option("user", config["user"]) \
-                .option("password", config["password"]) \
-                .option("insertStatement", insert_statement) \
-                .mode("append") \
-                .save()
-
-            print(f"Spark Wrote data to MySQL table: {table_name} with INSERT IGNORE")
+        if df_write.count() != df_read.count():
+            print(f"VALIDATE ERROR: Data mismatch {df_read.count()} vs {df_write.count()} records between Spark and MySQL for table: {table_name}")
+            return False
         else:
-            # Use standard write method for other modes
-            df.write \
-                .format("jdbc") \
-                .option("url", jdbc_url) \
-                .option("driver", "com.mysql.cj.jdbc.Driver") \
-                .option("dbtable", table_name) \
-                .option("user", config["user"]) \
-                .option("password", config["password"]) \
-                .mode(mode) \
-                .save()
+            print(f"VALIDATE SUCCESS: Data match {df_read.count()} vs {df_write.count()} records between Spark and MySQL for table: {table_name}")
+            return True
 
-            print(f"Spark Wrote data to MySQL table: {table_name}")
 
+
+    def spark_write_mongodb(self, df: DataFrame, database: str, collection: str, uri: str, mode: str = "overwrite"):
+        df.write \
+            .format("mongo") \
+            .option("uri", uri) \
+            .option("database", database) \
+            .option("collection", collection) \
+            .mode(mode) \
+            .save()
+
+        print(f"Spark - Successfully wrote data to MongoDB collection: {collection}")
 
     def write_all_database(self, df: DataFrame, mode: str = "append"):
         self.spark_write_mysql(
@@ -54,6 +58,14 @@ class SparkWriteDatabases:
             table_name=self.db_config["mysql"]["table"],
             jdbc_url=self.db_config["mysql"]["jdbc_url"],
             config=self.db_config["mysql"]["config"],
+            mode=mode
+        )
+
+        self.spark_write_mongodb(
+            df,
+            uri=self.db_config["mongodb"]["uri"],
+            database=self.db_config["mongodb"]["database"],
+            collection=self.db_config["mongodb"]["collection"],
             mode=mode
         )
         print("Wrote successfully to all databases")
