@@ -1,7 +1,4 @@
-Done connect spark to databases
-Done write data to databases
+validate data from NoSQL database
 
 
-validate
-    - nums of records
-    - data quality
+Format Folders Structure

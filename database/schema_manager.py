@@ -34,7 +34,7 @@ def create_mongodb_schema(db):
         )
 
         db["Users"].create_index("user_id", unique=True)
-        print("Executed MongoDB schema successfully")
+        print("Executed MongoDB sql successfully")
     else:
         print("Schema already exists")
 
@@ -49,7 +49,7 @@ def validate_mongodb_schema(db):
     if not user:
         raise ValueError("user_id not found in MongoDB")
 
-    print("MongoDB schema validated successfully")
+    print("MongoDB sql validated successfully")
 
 
 ### MySQL
@@ -58,7 +58,7 @@ def create_mysql_database(cursor, database_name):
     print(f"Database {database_name} created or existed!")
 
 
-SQL_FILE_PATH = Path("/home/duckthihn/PycharmProjects/DE-ETL/SyncData/schema/schema.sql")
+SQL_FILE_PATH = Path("/SyncData/sql/sql.sql")
 
 
 def create_mysql_schema(connection, cursor):
@@ -75,7 +75,7 @@ def create_mysql_schema(connection, cursor):
                 except Error as err:
                     print(f"Error executing query: {err}")
             connection.commit()
-            print("SQL schema executed successfully.")
+            print("SQL sql executed successfully.")
     except Exception as e:
         print(f"Failed to execute SQL file: {e}")
 
@@ -96,13 +96,13 @@ def validate_mysql_schema(cursor, database):
         print(f"Table '{table}' exists.")
 
     # Check records
-    cursor.execute("SELECT * FROM Users WHERE user_id = 9614759")
+    cursor.execute("SELECT * FROM Users WHERE user_id = 1")
     user = cursor.fetchone()
     if user is None:
         raise ValueError("User not found")
     print(user)
 
-    print("MySQL schema validated successfully.")
+    print("MySQL sql validated successfully.")
 
 
 def create_redis_schema(client):
@@ -125,4 +125,4 @@ def validate_redis_schema(client):
     if not client.sismember("user_id", "user:1"):
         raise ValueError(f"User not set in Redis")
 
-    print("Redis validated schema")
+    print("Redis validated sql")

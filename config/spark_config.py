@@ -4,12 +4,18 @@ from typing import Optional, List, Dict
 import os
 from SyncData.config.db_config import get_db_config
 
+"""
+    THIS FILE COVERS SPARK FUNCTIONS IN RELATING TO WRITE & READ DATA FROM DATABASES
+    IT ALSO INCLUDES DATA VALIDATION WHEN IT IS IMPORTED TO THE DATABASE 
+"""
+
 
 class SparkConnect():
     def __init__(
             self,
             app_name: str,
             master_url: str = "local[*]",
+            # thực tế là đi làm ko được chạy trên local =>> phải link vào con master
             executor_memory: Optional[str] = "4g",
             executor_cores: Optional[int] = 2,
             driver_memory: Optional[str] = "2g",
@@ -103,55 +109,3 @@ def get_spark_config() -> Dict:
 if __name__ == "__main__":
     config = get_spark_config()
     print(config)
-
-"""
-spark = create_spark_session(
-    app_name="test",
-    master_url="local[*]",
-    executor_memory="4g",
-    executor_cores=2,
-    driver_memory="4g",
-    num_executors=4,
-    jars=None,
-    spark_conf={"spark.sql.shuffle.partitions": "10"},
-    log_level="ERROR"
-)
-
-"""
-
-
-# jars = [
-#     "../lib/mongodb-jdbc-2.2.2-all.jar",
-#     "../lib/mysql-connector-j-9.2.0.jar",
-#     "../lib/redis-jdbc-driver-1.5.jar"
-# ]
-
-# spark = create_spark_session(
-#     app_name="test",
-#     master_url="local[*]",
-#     executor_memory="4g",
-#     executor_cores=2,
-#     driver_memory="4g",
-#     num_executors=4,
-#     jars=jars,
-#     spark_conf={"spark.sql.shuffle.partitions": "10"},
-#     log_level="INFO"
-# )
-
-
-# CONNECT TO MYSQL AND READ DATA FROM TABLE
-def spark_connect_to_mysql(
-        spark: SparkSession,
-        config: Dict[str, str],
-        table_name: str
-) -> DataFrame:
-    df = spark.read \
-        .format("jdbc") \
-        .option("url", config["url"]) \
-        .option("driver", config["driver"]) \
-        .option("dbtable", table_name) \
-        .option("user", config["user"]) \
-        .option("password", config["password"]) \
-        .load()
-
-    return df
