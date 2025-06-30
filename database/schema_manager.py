@@ -33,7 +33,7 @@ def create_mongodb_schema(db):
             }
         )
 
-        db["Users"].create_index("user_id", unique=True)
+        # db["Users"].create_index("user_id", unique=True)
         print("Executed MongoDB sql successfully")
     else:
         print("Schema already exists")
@@ -58,12 +58,12 @@ def create_mysql_database(cursor, database_name):
     print(f"Database {database_name} created or existed!")
 
 
-SQL_FILE_PATH = Path("/SyncData/sql/sql.sql")
+SQL_SCHEMA_FILE_PATH = Path("/home/duckthihn/PycharmProjects/DE-ETL/SyncData/sql/schema.sql")
 
 
 def create_mysql_schema(connection, cursor):
     try:
-        with open(SQL_FILE_PATH, "r") as file:
+        with open(SQL_SCHEMA_FILE_PATH, "r") as file:
             sql_script = file.read()
 
             sql_queries = [query.strip() for query in sql_script.split(';') if query.strip()]
@@ -102,7 +102,29 @@ def validate_mysql_schema(cursor, database):
         raise ValueError("User not found")
     print(user)
 
-    print("MySQL sql validated successfully.")
+    print("MySQL validated successfully.")
+
+
+SQL_TRIGGER_FILE_PATH = Path("/home/duckthihn/PycharmProjects/DE-ETL/SyncData/sql/trigger.sql")
+
+
+def create_mysql_trigger(connection, cursor):
+    try:
+        with open(SQL_TRIGGER_FILE_PATH, "r") as file:
+            sql_script = file.read()
+
+            sql_queries = [query.strip() for query in sql_script.split(';') if query.strip()]
+
+            for query in sql_queries:
+                try:
+                    cursor.execute(query)
+                    print(f"Executed query: {query[:30]}...")
+                except Error as err:
+                    print(f"Error executing query: {err}")
+            connection.commit()
+            print("MySQL: CREATED TRIGGERS SUCCESSFULLY.")
+    except Exception as e:
+        print(f"Failed to execute SQL file: {e}")
 
 
 def create_redis_schema(client):

@@ -13,8 +13,45 @@ class SparkWriteDatabases:
         self.spark = spark
         self.db_config = db_config
 
+    from SyncData.database.mysql_connect import MySQLConnect
+
     def spark_write_mysql(self, df_write: DataFrame, table_name: str, jdbc_url: str, config: Dict,
                           mode: str = "append"):
+        """
+        Write a DataFrame to MySQL via JDBC. Adds spark_temp column to the table if it does not exist.
+        """
+        # Ensure spark_temp exists in MySQL table
+        with MySQLConnect(
+                config["host"],
+                config["port"],
+                config["user"],
+                config["password"]) as mysql_client:
+
+            conn, cursor = mysql_client.connection, mysql_client.cursor
+            conn.database = "github_data"
+
+            # Check if spark_temp column exists
+            cursor.execute(f"""
+                SELECT COUNT(*)
+                FROM INFORMATION_SCHEMA.COLUMNS
+                WHERE table_schema = 'github_data'
+                  AND table_name = '{table_name}'
+                  AND column_name = 'spark_temp'
+            """)
+            exists = cursor.fetchone()[0]
+
+            if exists == 0:
+                print(f"Adding spark_temp column to table {table_name}...")
+                cursor.execute(f"""
+                    ALTER TABLE {table_name}
+                    ADD COLUMN spark_temp VARCHAR(50) DEFAULT NULL
+                """)
+                conn.commit()
+                print(f"✅ spark_temp column added to {table_name}")
+            else:
+                print(f"ℹ️ spark_temp column already exists in {table_name}")
+
+        # Now write the DataFrame
         df_write.write \
             .format("jdbc") \
             .option("url", jdbc_url) \

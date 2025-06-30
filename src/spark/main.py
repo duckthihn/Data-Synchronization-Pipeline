@@ -56,16 +56,12 @@ def main():
         col("spark_temp").alias("spark_temp")
     )
 
-    # repos_df = df.select(
-    #     col("repo.id").alias("repo_id"),
-    #     col("repo.name").alias("name"),
-    #     col("repo.url").alias("url")
-    # )
+    users_df.printSchema()
 
     spark_configs = get_spark_config()
 
     df_write = SparkWriteDatabases(spark_session, spark_configs)
-    df_write.write_all_database(users_df, mode="append")
+    df_write.write_all_database(users_df.coalesce(10), mode="append")
 
     df_validate = SparkWriteDatabases(spark_session, spark_configs)
     # df_validate.validate_spark_mysql(

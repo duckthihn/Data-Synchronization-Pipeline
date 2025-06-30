@@ -20,6 +20,14 @@ def main():
 
         cursor.execute("DROP TABLE IF EXISTS Users")
 
+        changes = ["insert", "update", "delete"]
+
+        for change in changes:
+            cursor.execute(f"DROP TABLE IF EXISTS Users_{change}_before")
+            cursor.execute(f"DROP TABLE IF EXISTS Users_{change}_after")
+            cursor.execute(f"DROP TRIGGER IF EXISTS before_users_{change}")
+            cursor.execute(f"DROP TRIGGER IF EXISTS after_users_{change}")
+
         connection.commit()
     print("================================== MONGO ==================================")
     with MongoDBConnect(
