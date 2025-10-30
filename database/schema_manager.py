@@ -44,7 +44,7 @@ def validate_mongodb_schema(db):
     if "Users" not in collections:
         raise ValueError("Missing collections in MongoDB")
 
-    user = db.Users.find_one({"user_id": 9614759})
+    user = db.Users.find_one({"user_id": 1})
 
     if not user:
         raise ValueError("user_id not found in MongoDB")
@@ -88,7 +88,7 @@ def validate_mysql_schema(cursor, database):
 
     cursor.execute(f"USE {database}")
 
-    required_tables = ['Users', 'Repositories']
+    required_tables = ['Users'] # Repositories table later
     for table in required_tables:
         cursor.execute(f"SHOW TABLES LIKE %s", (table,))
         if not cursor.fetchone():
@@ -96,7 +96,7 @@ def validate_mysql_schema(cursor, database):
         print(f"Table '{table}' exists.")
 
     # Check records
-    cursor.execute("SELECT * FROM Users WHERE user_id = 1")
+    cursor.execute("SELECT * FROM Users WHERE user_id = 10")
     user = cursor.fetchone()
     if user is None:
         raise ValueError("User not found")

@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS Users_log_before (
     url VARCHAR(255),
     avatar_url VARCHAR(255),
     action_type VARCHAR(50),
-    log_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    log_timestamp DATETIME
 );
 
 CREATE TABLE IF NOT EXISTS Users_log_after (
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS Users_log_after (
     url VARCHAR(255),
     avatar_url VARCHAR(255),
     action_type VARCHAR(50),
-    log_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    log_timestamp DATETIME
 );
 
 -- BEFORE INSERT Trigger
@@ -31,7 +31,7 @@ FOR EACH ROW
     )
     VALUES (
         NEW.user_id, NEW.login, NEW.gravatar_id, NEW.url, NEW.avatar_url,
-        'insert', NOW()
+        'INSERT', NOW()
     );
 
 -- AFTER INSERT Trigger
@@ -45,7 +45,7 @@ FOR EACH ROW
     )
     VALUES (
         NEW.user_id, NEW.login, NEW.gravatar_id, NEW.url, NEW.avatar_url,
-        'insert', NOW()
+        'INSERT', NOW()
     );
 
 -- BEFORE UPDATE Trigger
@@ -59,7 +59,7 @@ FOR EACH ROW
     )
     VALUES (
         OLD.user_id, OLD.login, OLD.gravatar_id, OLD.url, OLD.avatar_url,
-        'update', NOW()
+        'UPDATE', NOW()
     );
 
 -- AFTER UPDATE Trigger
@@ -73,7 +73,7 @@ FOR EACH ROW
     )
     VALUES (
         NEW.user_id, NEW.login, NEW.gravatar_id, NEW.url, NEW.avatar_url,
-        'update', NOW()
+        'UPDATE', NOW()
     );
 
 -- BEFORE DELETE Trigger
@@ -87,7 +87,7 @@ FOR EACH ROW
     )
     VALUES (
         OLD.user_id, OLD.login, OLD.gravatar_id, OLD.url, OLD.avatar_url,
-        'delete', NOW()
+        'DELETE', NOW()
     );
 
 
@@ -102,7 +102,7 @@ FOR EACH ROW
     )
     VALUES (
         OLD.user_id, OLD.login, OLD.gravatar_id, OLD.url, OLD.avatar_url,
-        'delete', NOW()
+        'DELETE', NOW()
     );
 
 

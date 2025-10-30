@@ -1,4 +1,0 @@
-validate data from NoSQL database
-
-
-Format Folders Structure

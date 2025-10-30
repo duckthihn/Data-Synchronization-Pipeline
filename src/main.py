@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from SyncData.config.db_config import get_db_config
 from SyncData.database.mongo_connect import MongoDBConnect
 from SyncData.database.mysql_connect import MySQLConnect
@@ -22,7 +24,7 @@ def main():
                 "avatar_url": "https://avatars.githubusercontent.com/u/9614759?"
             }
         )
-        # validate_mongodb_schema(mongo_client)
+        validate_mongodb_schema(mongo_client)
 
     #  MySQL
     print("================================== MYSQL ==================================")
@@ -48,14 +50,21 @@ def main():
              'https://avatars.githubusercontent.com/u/9614759?')
         )
 
-        cursor.execute(
-            "UPDATE Users SET login = 'user1_update', gravatar_id = 'xxxx', url = 'abc.com', avatar_url = 'xyz.com' WHERE user_id = 1"
-        )
+        # Query update.sql
+        update_sql_file = Path("/home/duckthihn/PycharmProjects/DE-ETL/SyncData/sql/update.sql")
+
+        with open(update_sql_file, "r") as f:
+            sql_script = f.read()
+
+        statements = [stmt.strip() for stmt in sql_script.split(';') if stmt.strip()]
+
+        for stmt in statements:
+            cursor.execute(stmt)
 
         connection.commit()
 
         # Validate MySQL sql
-        # validate_mysql_schema(cursor, db_name)
+        validate_mysql_schema(cursor, db_name)
 
 
 if __name__ == "__main__":

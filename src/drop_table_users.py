@@ -19,14 +19,8 @@ def main():
         mysql_conn.select_database(db_name)
 
         cursor.execute("DROP TABLE IF EXISTS Users")
-
-        changes = ["insert", "update", "delete"]
-
-        for change in changes:
-            cursor.execute(f"DROP TABLE IF EXISTS Users_{change}_before")
-            cursor.execute(f"DROP TABLE IF EXISTS Users_{change}_after")
-            cursor.execute(f"DROP TRIGGER IF EXISTS before_users_{change}")
-            cursor.execute(f"DROP TRIGGER IF EXISTS after_users_{change}")
+        cursor.execute("DROP TABLE IF EXISTS Users_log_before")
+        cursor.execute("DROP TABLE IF EXISTS Users_log_after")
 
         connection.commit()
     print("================================== MONGO ==================================")
