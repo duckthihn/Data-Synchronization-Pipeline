@@ -1,4 +1,4 @@
-# 🚀 DataLens Data Synchronization Pipeline
+# Data Synchronization Pipeline
 
 ![Data Engineering](https://img.shields.io/badge/Data_Engineering-Portfolio_Project-blue)
 ![Apache Spark](https://img.shields.io/badge/Apache_Spark-PySpark-E25A1C)
